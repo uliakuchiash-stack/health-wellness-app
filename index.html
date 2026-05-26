@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>One Month</title>
+  <meta name="theme-color" content="#071015" />
+  <style>
+    :root{
+      --side:86px; --glass:rgba(30,35,34,.46); --border:rgba(255,255,255,.28);
+      --text:#fff; --muted:rgba(255,255,255,.72); --accent:#55b7ff; --red:#ff5058;
+      --radius:28px; font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    *{box-sizing:border-box} html,body{margin:0;height:100%;background:#071015;color:var(--text)}
+    body{overflow:hidden} button,input,select{font:inherit} button{border:0;color:inherit;cursor:pointer}
+    .app{height:100dvh;display:grid;grid-template-columns:var(--side) 1fr;background:#071015;overflow:hidden}
+    .splash{position:fixed;inset:0;z-index:99;background:#dfeadb url("assets/backgrounds/splash-screen-ocean.png") center/cover no-repeat;display:grid;place-items:center;transition:.5s}
+    .splash.hide{opacity:0;visibility:hidden;pointer-events:none}
+    .splash-card{width:min(86vw,430px);text-align:center;padding:28px;border-radius:34px;background:rgba(255,255,255,.24);backdrop-filter:blur(10px);color:#26482e;text-shadow:0 1px 12px rgba(255,255,255,.6)}
+    .splash-card h1{font-size:42px;line-height:1.02;margin:0;text-transform:uppercase;letter-spacing:.06em}
+    .splash-card p{font-size:17px;line-height:1.45;margin:18px 0 0}
+    .loading{margin-top:24px;letter-spacing:.32em;font-size:12px;text-transform:uppercase}
+    .side{padding:16px 9px;display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(2,7,10,.84);backdrop-filter:blur(18px);z-index:5}
+    .avatar,.nav{width:64px;border-radius:22px;background:transparent;display:grid;place-items:center;gap:4px;padding:9px 3px}
+    .avatar{height:58px;border-radius:50%;background:rgba(255,255,255,.16)}
+    .nav{min-height:66px;color:rgba(255,255,255,.72)}
+    .nav.active{background:linear-gradient(135deg,#ff6268,#ff3f49);color:#fff;box-shadow:0 12px 32px rgba(255,63,73,.28)}
+    .nav svg,.avatar svg{width:27px;height:27px;stroke-width:1.8}.nav span{font-size:9.5px;text-align:center;line-height:1.05}
+    .main{position:relative;overflow:hidden}
+    .screen{position:absolute;inset:0;background:center/cover no-repeat;opacity:0;pointer-events:none;transform:translateX(16px);transition:.22s}
+    .screen.active{opacity:1;pointer-events:auto;transform:none}.screen:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,.12) 42%,rgba(0,0,0,.45))}
+    #profile{background-image:url("assets/backgrounds/profile-bg.png"),linear-gradient(#556,#332)}
+    #menu{background-image:url("assets/backgrounds/menu-bg.png"),linear-gradient(#354,#221)}
+    #food{background-image:url("assets/backgrounds/food-scan-bg.png"),linear-gradient(#6a2,#631)}
+    #water{background-image:url("assets/backgrounds/water-bg.png"),linear-gradient(#075,#023)}
+    #workouts{background-image:url("assets/backgrounds/workouts-bg.png"),linear-gradient(#653,#134)}
+    #steps{background-image:url("assets/backgrounds/steps-bg.png"),linear-gradient(#653,#134)}
+    #coach{background-image:url("assets/backgrounds/coach-bg.png"),linear-gradient(#653,#134)}
+    .content{position:relative;z-index:1;height:100%;overflow:auto;padding:24px 18px 28px;scrollbar-width:none}.content::-webkit-scrollbar{display:none}
+    .top{position:relative;min-height:74px;display:flex;align-items:center;justify-content:center;text-align:center}.title{font-size:36px;line-height:1.05;margin:0;letter-spacing:.055em;text-shadow:0 4px 24px rgba(0,0,0,.25)}.sub{margin:7px 0 0;color:var(--muted);font-size:14px}
+    .gear,.back,.more{position:absolute;top:8px;width:52px;height:52px;border-radius:18px;background:rgba(255,255,255,.16);border:1px solid var(--border);backdrop-filter:blur(14px);display:grid;place-items:center}
+    .gear,.more{right:0}.back{left:0}
+    .stack{display:grid;gap:14px;margin-top:16px}
+    .card,.action{background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);backdrop-filter:blur(18px);box-shadow:0 18px 60px rgba(0,0,0,.34)}
+    .card{padding:17px}.action{min-height:96px;padding:14px 16px;display:grid;grid-template-columns:58px 1fr 22px;gap:13px;align-items:center;text-align:left}
+    .bubble{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.13)}.bubble svg{width:30px;height:30px}
+    .action strong{font-size:24px;letter-spacing:.035em}.action small{display:block;margin-top:4px;color:var(--muted)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.label{color:var(--muted);font-size:13px}.value{font-size:30px;font-weight:800;margin-top:6px}.note{font-size:13px;color:var(--muted);line-height:1.45}
+    input,select{width:100%;border-radius:16px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.22);color:#fff;padding:12px}
+    .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:grid;gap:5px}.field label{font-size:12px;color:var(--muted)}
+    .tabs{display:flex;gap:8px;overflow:auto}.tab{padding:11px 15px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);white-space:nowrap}.tab.active{background:rgba(255,255,255,.32)}
+    .small{border-radius:20px;padding:13px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.17);display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .pill{border-radius:999px;padding:10px 14px;background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.23)}
+    .progress{height:9px;border-radius:999px;background:rgba(255,255,255,.22);overflow:hidden}.fill{height:100%;width:0;background:var(--accent);border-radius:inherit}
+    .glasses{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.glass{aspect-ratio:1/.82;border-radius:24px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);display:grid;place-items:center}.glass.done{background:rgba(85,183,255,.84)}
+    .chat{display:grid;gap:12px;padding-bottom:92px}.msg{max-width:84%;padding:15px;border-radius:22px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(15px);line-height:1.45}.user{justify-self:end}.ai{justify-self:start;background:rgba(35,48,42,.44)}
+    .chatbar{position:sticky;bottom:0;display:grid;grid-template-columns:1fr 52px;gap:9px;padding-top:12px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.38))}.send{width:52px;height:52px;border-radius:50%;background:#fff;color:#27382d;display:grid;place-items:center}
+    .modalwrap{position:fixed;inset:0;z-index:70;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.44);padding:14px}.modalwrap.open{display:flex}.modal{width:min(100%,620px);max-height:86vh;overflow:auto;border-radius:30px;background:rgba(18,25,26,.86);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(22px);padding:18px}.modalhead{display:flex;justify-content:space-between;align-items:center}.close{width:44px;height:44px;border-radius:15px;background:rgba(255,255,255,.12)}
+    @media(max-width:640px){:root{--side:76px}.title{font-size:32px}.action strong{font-size:21px}.grid2{grid-template-columns:1fr}.side{padding-left:7px;padding-right:7px}.nav{width:58px}.fields{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+<section id="splash" class="splash">
+  <div class="splash-card">
+    <h1>One Month.<br>New Habits.<br>New You.</h1>
+    <p>Eat healthy. Move daily. Stay hydrated.<br>Your best self starts today.</p>
+    <div class="loading">Loading...</div>
+  </div>
+</section>
+
+<div class="app">
+  <aside class="side">
+    <button class="avatar" data-go="profile" aria-label="Profile" data-icon="user"></button>
+    <button class="nav active" data-go="profile"><i data-icon="user"></i><span data-t="navProfile">Profile</span></button>
+    <button class="nav" data-go="menu"><i data-icon="menu"></i><span data-t="navMenu">Menu</span></button>
+    <button class="nav" data-go="food"><i data-icon="camera"></i><span data-t="navFood">Food</span></button>
+    <button class="nav" data-go="water"><i data-icon="drop"></i><span data-t="navWater">Water</span></button>
+    <button class="nav" data-go="workouts"><i data-icon="dumbbell"></i><span data-t="navWorkouts">Workouts</span></button>
+    <button class="nav" data-go="steps"><i data-icon="steps"></i><span data-t="navSteps">Steps</span></button>
+    <button class="nav" data-go="coach"><i data-icon="leaf"></i><span data-t="navCoach">Coach</span></button>
+  </aside>
+
+  <main class="main">
+    <section id="profile" class="screen active"><div class="content">
+      <div class="top"><div><h1 class="title" data-t="profileTitle">My Progress</h1><p class="sub" data-t="profileSub">Start month → end month</p></div><button id="settingsBtn" class="gear" data-icon="settings"></button></div>
+      <div class="grid2">
+        <div class="card"><h3 data-t="myDetails">My details</h3><div class="fields">
+          <div class="field"><label data-t="sex">Sex</label><select id="sex"><option value="female" data-t="female">Female</option><option value="male" data-t="male">Male</option></select></div>
+          <div class="field"><label data-t="age">Age</label><input id="age" type="number" value="35"></div>
+          <div class="field"><label data-t="height">Height, cm</label><input id="height" type="number" value="170"></div>
+          <div class="field"><label data-t="weight">Weight, kg</label><input id="weight" type="number" value="68" step="0.1"></div>
+        </div></div>
+        <div class="card"><h3 data-t="bodyGuide">Body guide</h3><div id="bmi" class="value">23.5 BMI</div><p id="bmiText" class="note"></p></div>
+      </div>
+      <div class="stack">
+        <button class="action"><span class="bubble" data-icon="measure"></span><span><strong data-t="measurements">Body measurements</strong><small data-t="measurementsSub">Chest, waist, belly, hips, arm, thigh</small></span><i data-icon="chev"></i></button>
+        <button class="action"><span class="bubble" data-icon="camera"></span><span><strong data-t="startPhoto">Start photo</strong><small data-t="startPhotoSub">Photo from day one</small></span><i data-icon="chev"></i></button>
+        <button class="action"><span class="bubble" data-icon="camera"></span><span><strong data-t="endPhoto">End month photo</strong><small data-t="endPhotoSub">Compare your progress</small></span><i data-icon="chev"></i></button>
+        <button class="action"><span class="bubble" data-icon="chart"></span><span><strong data-t="monthResult">Monthly result</strong><small data-t="monthResultSub">Weight and centimetres</small></span><i data-icon="chev"></i></button>
+      </div>
+    </div></section>
+
+    <section id="menu" class="screen"><div class="content">
+      <div class="top"><div><h1 class="title" data-t="menuTitle">Monthly Menu</h1><p class="sub" data-t="menuSub">30 days of simple meals</p></div></div>
+      <div class="card"><div class="tabs"><button class="tab active">Balanced</button><button class="tab">Vegetarian</button><button class="tab">Vegan</button></div></div>
+      <div class="stack">
+        <button class="action"><span class="bubble" data-icon="calendar"></span><span><strong data-t="week1">Week 1</strong><small data-t="weekSub">Monday to Sunday</small></span><i data-icon="chev"></i></button>
+        <button class="action"><span class="bubble" data-icon="calendar"></span><span><strong data-t="week2">Week 2</strong><small data-t="weekSub">Monday to Sunday</small></span><i data-icon="chev"></i></button>
+        <button class="action"><span class="bubble" data-icon="calendar"></span><span><strong data-t="week3">Week 3</strong><small data-t="weekSub">Monday to Sunday</small></span><i data-icon="chev"></i></button>
+        <button class="action"><span class="bubble" data-icon="calendar"></span><span><strong data-t="week4">Week 4</strong><small data-t="weekSub">Monday to Sunday</small></span><i data-icon="chev"></i></button>
+      </div>
+      <div class="card" style="margin-top:14px"><h3 data-t="exampleDay">Example day</h3>
+        <div class="stack">
+          <div class="small"><b data-t="breakfast">Breakfast</b><button class="pill" data-t="replace">Replace</button></div>
+          <div class="small"><b data-t="snack1">Snack 1</b><button class="pill" data-t="replace">Replace</button></div>
+          <div class="small"><b data-t="lunch">Lunch</b><button class="pill" data-t="replaceSoup">Replace soup</button></div>
+          <div class="small"><b data-t="snack2">Snack 2</b><button class="pill" data-t="replace">Replace</button></div>
+          <div class="small"><b data-t="dinner">Dinner</b><button class="pill" data-t="replace">Replace</button></div>
+        </div>
+      </div>
+    </div></section>
+
+    <section id="food" class="screen"><div class="content">
+      <div class="top"><div><h1 class="title">Food Scan</h1><p class="sub" data-t="foodSub">Approximate calories from a photo</p></div></div>
+      <div class="stack">
+        <button class="action"><span class="bubble" data-icon="camera"></span><span><strong data-t="takePhoto">Take food photo</strong><small data-t="takePhotoSub">Scan your plate</small></span><i data-icon="chev"></i></button>
+        <button class="action"><span class="bubble" data-icon="upload"></span><span><strong data-t="uploadPhoto">Upload photo</strong><small data-t="uploadPhotoSub">Choose from gallery</small></span><i data-icon="chev"></i></button>
+        <button class="action"><span class="bubble" data-icon="file"></span><span><strong data-t="myScans">My scans</strong><small data-t="myScansSub">Saved meals</small></span><i data-icon="chev"></i></button>
+        <button class="action"><span class="bubble" data-icon="spark"></span><span><strong data-t="foodAdvice">AI food advice</strong><small data-t="foodAdviceSub">Make the meal lighter</small></span><i data-icon="chev"></i></button>
+      </div>
+    </div></section>
+
+    <section id="water" class="screen"><div class="content">
+      <div class="top"><div><h1 class="title" data-t="waterTitle">Water</h1><p class="sub" data-t="waterSub">Daily hydration tracker</p></div></div>
+      <div class="card"><div class="grid2"><div><div class="label" data-t="dailyGoal">Daily goal</div><div class="value">2 L</div></div><div><div class="label" data-t="today">Today</div><div class="value"><span id="waterNow">0</span> / 2 L</div></div></div>
+        <div class="progress" style="margin-top:14px"><div id="waterFill" class="fill"></div></div><div id="glasses" class="glasses"></div><p id="waterLeft" class="note"></p></div>
+      <div class="stack"><div class="small"><button class="pill addWater" data-ml="250">+250 ml</button><button class="pill addWater" data-ml="500">+500 ml</button><button id="resetWater" class="pill" data-t="reset">Reset</button></div>
+      <button class="action"><span class="bubble" data-icon="bell"></span><span><strong data-t="reminders">Reminders</strong><small data-t="remindersSub">Remind me to drink water</small></span><i data-icon="chev"></i></button></div>
+    </div></section>
+
+    <section id="workouts" class="screen"><div class="content">
+      <div class="top"><div><h1 class="title" data-t="workoutsTitle">Workouts</h1><p class="sub" data-t="workoutsSub">30-day plan, 3 levels</p></div></div>
+      <div class="card"><h3 data-t="level">Level</h3><div class="tabs"><button class="tab active" data-t="beginner">Beginner</button><button class="tab" data-t="middle">Middle</button><button class="tab" data-t="advanced">Advanced</button></div></div>
+      <div class="stack">
+        <button class="action"><span class="bubble" data-icon="fire"></span><span><strong data-t="cardio">Cardio / Warm-up</strong><small data-t="cardioSub">Start with energy</small></span><i data-icon="chev"></i></button>
+        <button class="action"><span class="bubble" data-icon="dumbbell"></span><span><strong data-t="strength">Strength / Body</strong><small data-t="strengthSub">Bodyweight and resistance band</small></span><i data-icon="chev"></i></button>
+        <button class="action"><span class="bubble" data-icon="yoga"></span><span><strong data-t="yoga">Yoga / Stretching</strong><small data-t="yogaSub">Flexibility and recovery</small></span><i data-icon="chev"></i></button>
+        <button class="action"><span class="bubble" data-icon="spine"></span><span><strong data-t="spine">Back / Spine</strong><small data-t="spineSub">Posture and gentle back care</small></span><i data-icon="chev"></i></button>
+      </div>
+    </div></section>
+
+    <section id="steps" class="screen"><div class="content">
+      <div class="top"><div><h1 class="title" data-t="stepsTitle">Steps</h1><p class="sub" data-t="stepsSub">Daily movement tracker</p></div></div>
+      <div class="card"><div class="label" data-t="stepsGoal">Goal</div><div class="value">5 860 / 8 000</div><div class="progress"><div class="fill" style="width:73%"></div></div>
+        <div class="grid2" style="margin-top:14px"><div class="small"><b>4.3 km</b><span data-t="distance">Distance</span></div><div class="small"><b>260 kcal</b><span data-t="calories">Calories</span></div></div></div>
+      <div class="stack"><button class="action"><span class="bubble" data-icon="star"></span><span><strong data-t="streak">7-day streak</strong><small data-t="streakSub">Great rhythm</small></span><i data-icon="chev"></i></button>
+      <button class="action"><span class="bubble" data-icon="calendar"></span><span><strong data-t="calendar">Progress calendar</strong><small data-t="calendarSub">Water, workouts, steps, scans</small></span><i data-icon="chev"></i></button></div>
+    </div></section>
+
+    <section id="coach" class="screen"><div class="content">
+      <div class="top"><button class="back" data-go="profile" data-icon="back"></button><div><h1 class="title">AI Coach</h1><p class="sub" data-t="coachSub">Support chat</p></div><button class="more" data-icon="more"></button></div>
+      <div id="chat" class="chat">
+        <div class="msg user" data-t="chatUser">I am tired and do not want to train today.</div>
+        <div class="msg ai" data-t="chatAi">That is normal. Not every day has to be perfect. Choose 7–10 minutes of gentle stretching. A small step still counts.</div>
+        <div class="tabs"><button class="tab quick" data-reply="motivation" data-t="noMotivation">No motivation</button><button class="tab quick" data-reply="tired" data-t="tired">Tired</button><button class="tab quick" data-reply="broke" data-t="brokePlan">Broke my plan</button><button class="tab quick" data-reply="pain" data-t="pain">Body hurts</button></div>
+        <div class="chatbar"><input id="coachInput" data-ph="coachPh" placeholder="Write what worries you..."><button id="send" class="send" data-icon="send"></button></div>
+      </div>
+    </div></section>
+  </main>
+</div>
+
+<div id="modal" class="modalwrap"><div class="modal">
+  <div class="modalhead"><h2 data-t="settings">Settings</h2><button id="close" class="close" data-icon="close"></button></div>
+  <div class="stack">
+    <div class="card"><h3 data-t="language">Language</h3><select id="lang"></select></div>
+    <button class="action"><span class="bubble" data-icon="crown"></span><span><strong data-t="premium">Premium Account</strong><small data-t="premiumSub">Subscription status</small></span><i data-icon="chev"></i></button>
+    <button class="action"><span class="bubble" data-icon="user"></span><span><strong data-t="account">Account</strong><small data-t="accountSub">Login and profile</small></span><i data-icon="chev"></i></button>
+    <button class="action"><span class="bubble" data-icon="bell"></span><span><strong data-t="notifications">Notifications</strong><small data-t="notificationsSub">Water and workout reminders</small></span><i data-icon="chev"></i></button>
+    <button class="action"><span class="bubble" data-icon="mail"></span><span><strong data-t="support">Contact Support</strong><small>aislang.business@gmail.com</small></span><i data-icon="chev"></i></button>
+    <button class="action"><span class="bubble" data-icon="file"></span><span><strong data-t="privacy">Privacy Policy</strong><small data-t="privacySub">How data is handled</small></span><i data-icon="chev"></i></button>
+    <button class="action"><span class="bubble" data-icon="file"></span><span><strong data-t="terms">Terms of Use</strong><small data-t="termsSub">App rules</small></span><i data-icon="chev"></i></button>
+  </div>
+</div></div>
+
+<script>
+const icons={
+user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.8-4 5-6 8-6s6.2 2 8 6"/></svg>',
+menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
+camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="14" r="4"/></svg>',
+drop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3s7 7.2 7 12a7 7 0 0 1-14 0c0-4.8 7-12 7-12z"/></svg>',
+dumbbell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 7v10M18 7v10M3 9v6M21 9v6M6 12h12"/></svg>',
+steps:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 20c-2 0-3-1.5-3-3.2 0-2.2 1.5-5.3 3.2-5.3 1.5 0 2.3 1.9 2.3 3.8C10.5 17.6 9.8 20 8 20z"/><path d="M16.3 14c-1.8-.2-2.4-2.4-2.1-4.3.3-2 1.4-3.7 2.9-3.5 1.8.2 2.8 3.6 2.4 5.7-.3 1.7-1.4 2.3-3.2 2.1z"/></svg>',
+leaf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 4C11 4 6 9 6 18c8 0 14-5 14-14z"/><path d="M6 18c3-4 6-6 10-8"/></svg>',
+settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.4 1a7 7 0 0 0-1.8-1L14.4 3h-4.8L9.2 6a7 7 0 0 0-1.8 1L5 6 3 9.5 5 11a7 7 0 0 0 0 2l-2 1.5L5 18l2.4-1a7 7 0 0 0 1.8 1l.4 3h4.8l.4-3a7 7 0 0 0 1.8-1l2.4 1 2-3.5-2-1.5a7 7 0 0 0 .1-1z"/></svg>',
+chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>',
+measure:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 3v18M6 5h8M6 9h5M6 13h8M6 17h5"/></svg>',
+chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 20h16M6 16l4-4 3 3 5-7M18 8v5h-5"/></svg>',
+upload:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>',
+file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 3h9l3 3v15H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg>',
+spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3l1.5 5L18 10l-4.5 2L12 17l-1.5-5L6 10l4.5-2z"/></svg>',
+bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 9a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>',
+calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>',
+fire:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22c4 0 7-3 7-7 0-4-4-7-5-12-4 3-7 8-4 12-2-1-3-3-3-5-2 2-3 4-3 6 0 3 3 6 8 6z"/></svg>',
+yoga:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="5" r="2"/><path d="M12 7v6M8 12h8M5 19h14M8 19l4-6 4 6"/></svg>',
+spine:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3c-2 3-2 5 0 7s2 4 0 6-2 3 0 5"/><path d="M9 5h6M9 10h6M9 15h6M9 20h6"/></svg>',
+star:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9-5.4 2.9 1-6-4.4-4.3 6.1-.9z"/></svg>',
+back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 18l-6-6 6-6"/></svg>',
+more:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h.01M12 12h.01M19 12h.01"/></svg>',
+send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
+close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+crown:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 8l4 4 4-7 4 7 4-4v11H4z"/><path d="M4 19h16"/></svg>',
+mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 7 9-7"/></svg>'
+};
+document.querySelectorAll('[data-icon]').forEach(e=>e.innerHTML=icons[e.dataset.icon]||'');
+
+const langs=[
+['en','English'],['uk','Українська'],['pl','Polski'],['de','Deutsch'],['fr','Français'],['es','Español'],['it','Italiano'],['pt','Português'],['nl','Nederlands'],['tr','Türkçe'],['ro','Română'],['cs','Čeština'],['sk','Slovenčina'],['ka','ქართული'],['ar','العربية'],['zh','中文'],['ja','日本語'],['ko','한국어'],['hi','हिन्दी'],['he','עברית']
+];
+
+const en={
+navProfile:'Profile',navMenu:'Menu',navFood:'Food',navWater:'Water',navWorkouts:'Workouts',navSteps:'Steps',navCoach:'Coach',
+profileTitle:'My Progress',profileSub:'Start month → end month',myDetails:'My details',sex:'Sex',female:'Female',male:'Male',age:'Age',height:'Height, cm',weight:'Weight, kg',bodyGuide:'Body guide',measurements:'Body measurements',measurementsSub:'Chest, waist, belly, hips, arm, thigh',startPhoto:'Start photo',startPhotoSub:'Photo from day one',endPhoto:'End month photo',endPhotoSub:'Compare your progress',monthResult:'Monthly result',monthResultSub:'Weight and centimetres',
+menuTitle:'Monthly Menu',menuSub:'30 days of simple meals',week1:'Week 1',week2:'Week 2',week3:'Week 3',week4:'Week 4',weekSub:'Monday to Sunday',exampleDay:'Example day',breakfast:'Breakfast',snack1:'Snack 1',lunch:'Lunch',snack2:'Snack 2',dinner:'Dinner',replace:'Replace',replaceSoup:'Replace soup',
+foodSub:'Approximate calories from a photo',takePhoto:'Take food photo',takePhotoSub:'Scan your plate',uploadPhoto:'Upload photo',uploadPhotoSub:'Choose from gallery',myScans:'My scans',myScansSub:'Saved meals',foodAdvice:'AI food advice',foodAdviceSub:'Make the meal lighter',
+waterTitle:'Water',waterSub:'Daily hydration tracker',dailyGoal:'Daily goal',today:'Today',reset:'Reset',reminders:'Reminders',remindersSub:'Remind me to drink water',glassesLeft:'glasses left',goalDone:'Goal completed',
+workoutsTitle:'Workouts',workoutsSub:'30-day plan, 3 levels',level:'Level',beginner:'Beginner',middle:'Middle',advanced:'Advanced',cardio:'Cardio / Warm-up',cardioSub:'Start with energy',strength:'Strength / Body',strengthSub:'Bodyweight and resistance band',yoga:'Yoga / Stretching',yogaSub:'Flexibility and recovery',spine:'Back / Spine',spineSub:'Posture and gentle back care',
+stepsTitle:'Steps',stepsSub:'Daily movement tracker',stepsGoal:'Goal',distance:'Distance',calories:'Calories',streak:'7-day streak',streakSub:'Great rhythm',calendar:'Progress calendar',calendarSub:'Water, workouts, steps, scans',
+coachSub:'Support chat',chatUser:'I am tired and do not want to train today.',chatAi:'That is normal. Not every day has to be perfect. Choose 7–10 minutes of gentle stretching. A small step still counts.',noMotivation:'No motivation',tired:'Tired',brokePlan:'Broke my plan',pain:'Body hurts',coachPh:'Write what worries you...',
+settings:'Settings',language:'Language',premium:'Premium Account',premiumSub:'Subscription status',account:'Account',accountSub:'Login and profile',notifications:'Notifications',notificationsSub:'Water and workout reminders',support:'Contact Support',privacy:'Privacy Policy',privacySub:'How data is handled',terms:'Terms of Use',termsSub:'App rules'
+};
+const uk={...en,navProfile:'Профіль',navMenu:'Меню',navFood:'Скан їжі',navWater:'Вода',navWorkouts:'Тренування',navSteps:'Кроки',navCoach:'AI Коуч',profileTitle:'Мій прогрес',profileSub:'Початок місяця → кінець місяця',myDetails:'Мої дані',sex:'Стать',female:'Жінка',male:'Чоловік',age:'Вік',height:'Зріст, см',weight:'Вага, кг',bodyGuide:'Орієнтир тіла',measurements:'Заміри тіла',startPhoto:'Фото на старті',endPhoto:'Фото в кінці місяця',monthResult:'Результат місяця',menuTitle:'Меню на місяць',menuSub:'30 днів простих страв',week1:'Тиждень 1',week2:'Тиждень 2',week3:'Тиждень 3',week4:'Тиждень 4',breakfast:'Сніданок',snack1:'Перекус 1',lunch:'Обід',snack2:'Перекус 2',dinner:'Вечеря',replace:'Замінити',replaceSoup:'Замінити суп',waterTitle:'Вода',workoutsTitle:'Тренування',stepsTitle:'Кроки',settings:'Налаштування',language:'Мова',premium:'Premium акаунт',support:'Підтримка',privacy:'Політика конфіденційності',terms:'Умови використання'};
+const pl={...en,navProfile:'Profil',navMenu:'Menu',navFood:'Skan jedzenia',navWater:'Woda',navWorkouts:'Treningi',navSteps:'Kroki',navCoach:'AI Coach',profileTitle:'Mój progres',menuTitle:'Menu miesięczne',waterTitle:'Woda',workoutsTitle:'Treningi',stepsTitle:'Kroki',settings:'Ustawienia',language:'Język'};
+const tr={...en,navProfile:'Profil',navMenu:'Menü',navFood:'Yemek',navWater:'Su',navWorkouts:'Egzersiz',navSteps:'Adımlar',navCoach:'Koç',settings:'Ayarlar',language:'Dil'};
+const ro={...en,navProfile:'Profil',navMenu:'Meniu',navWater:'Apă',navWorkouts:'Antrenamente',navSteps:'Pași',settings:'Setări',language:'Limbă'};
+const dict={en,uk,pl,tr,ro};
+let lang=localStorage.healthLang||'en';
+const langEl=document.getElementById('lang'); langs.forEach(([c,n])=>{const o=document.createElement('option');o.value=c;o.textContent=n;langEl.appendChild(o)}); langEl.value=lang;
+function t(k){return (dict[lang]?.[k])||en[k]||k}
+function apply(){document.documentElement.lang=lang;document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));document.querySelectorAll('[data-ph]').forEach(e=>e.placeholder=t(e.dataset.ph));bmi();waterUI()}
+langEl.onchange=()=>{lang=langEl.value;localStorage.healthLang=lang;apply()};
+
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.go===id))}
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+settingsBtn.onclick=()=>modal.classList.add('open'); close.onclick=()=>modal.classList.remove('open'); modal.onclick=e=>{if(e.target===modal)modal.classList.remove('open')};
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{[...b.parentElement.children].forEach(x=>x.classList.remove('active'));b.classList.add('active')});
+
+function bmi(){let h=+height.value/100,w=+weight.value;if(!h||!w)return;let b=w/(h*h),min=18.5*h*h,max=24.9*h*h;bmi.innerText=b.toFixed(1)+' BMI';bmiText.innerText=`Healthy range: ${min.toFixed(1)}–${max.toFixed(1)} kg. Approximate wellness guide, not medical advice.`}
+['height','weight','age','sex'].forEach(id=>document.getElementById(id).oninput=bmi);
+
+let water=+(localStorage.waterMl||0),goal=2000;
+function waterUI(){glasses.innerHTML='';let done=Math.floor(water/250);for(let i=1;i<=8;i++){let b=document.createElement('button');b.className='glass'+(i<=done?' done':'');b.innerHTML='<span>🥛<br>'+i+'</span>';b.onclick=()=>{water=i*250;localStorage.waterMl=water;waterUI()};glasses.appendChild(b)}waterNow.innerText=(water/1000).toFixed(water%1000?2:0);waterFill.style.width=Math.min(100,water/goal*100)+'%';let left=Math.max(0,8-done);waterLeft.innerText=left?`${left} ${t('glassesLeft')}`:t('goalDone')}
+document.querySelectorAll('.addWater').forEach(b=>b.onclick=()=>{water=Math.min(goal,water+(+b.dataset.ml));localStorage.waterMl=water;waterUI()});resetWater.onclick=()=>{water=0;localStorage.waterMl=0;waterUI()};
+
+const replies={motivation:'Choose one tiny action today: 5 minutes of movement, one glass of water, or a short walk. Keep the promise small enough to complete.',tired:'Tiredness is information, not failure. Lower the intensity and protect your routine without forcing your body.',broke:'One difficult moment does not erase your progress. Return to the next small step without punishing yourself.',pain:'If the pain is sharp, strong, or unusual, stop the exercise. Choose rest or gentle mobility today.'};
+function addMsg(text,who){let m=document.createElement('div');m.className='msg '+who;m.textContent=text;chat.insertBefore(m,chat.querySelector('.chatbar'));m.scrollIntoView({behavior:'smooth'})}
+document.querySelectorAll('.quick').forEach(b=>b.onclick=()=>{addMsg(b.textContent,'user');setTimeout(()=>addMsg(replies[b.dataset.reply],'ai'),200)});
+send.onclick=()=>{if(!coachInput.value.trim())return;addMsg(coachInput.value,'user');coachInput.value='';setTimeout(()=>addMsg(replies.motivation,'ai'),200)};
+coachInput.onkeydown=e=>{if(e.key==='Enter')send.click()};
+window.onload=()=>{apply();setTimeout(()=>splash.classList.add('hide'),1200)}
+</script>
+</body>
+</html>
