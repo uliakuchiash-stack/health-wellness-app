@@ -1,4 +1,5 @@
 
+
 <!doctype html>
 <html lang="en" dir="ltr">
 <head>
@@ -28,7 +29,7 @@ html[lang="ka"] .nav span,html[lang="hi"] .nav span,html[lang="bg"] .nav span{fo
 html[lang="ka"] .tab,html[lang="hi"] .tab,html[lang="bg"] .tab,html[lang="ar"] .tab,html[lang="he"] .tab{font-size:10px;padding-left:8px;padding-right:8px}
 @media(max-width:390px){:root{--side:72px}.nav{width:56px}.nav span{font-size:8px}.content{padding-left:11px;padding-right:11px}.grid2{grid-template-columns:1.2fr .9fr}.card{padding:12px}.fieldGrid{gap:7px}.value{font-size:26px}.action strong{font-size:16px}.action small{font-size:10.5px}}
 
-.mealPlanView{display:grid;gap:10px;margin-top:10px}#weekTabs{display:none!important}.weekTabs{padding:2px 0}.mealDay{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(5px);box-shadow:0 12px 30px rgba(0,0,0,.12);color:var(--ink);padding:12px}.mealDayHead{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.mealDayHead strong{font-size:16px}.mealKcal{font-size:12px;border-radius:999px;background:rgba(255,255,255,.38);padding:6px 9px;white-space:nowrap}.mealItem{border-top:1px solid rgba(39,35,30,.12);padding-top:9px;margin-top:9px}.mealItem h4{margin:0 0 5px;font-size:14px;line-height:1.2}.mealType{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:3px}.ingredients{margin:6px 0 0;padding-left:17px;font-size:12px;line-height:1.35;color:var(--muted)}.replaceBtn{margin-top:7px;border-radius:999px;background:rgba(255,255,255,.38);border:1px solid rgba(255,255,255,.42);padding:7px 10px;color:var(--ink);font-size:11.5px}.modal .replaceBtn{color:#fff}.replaceList{display:grid;gap:8px}.replaceOption{border-radius:16px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:10px;font-size:13px;line-height:1.3}.savedItem{position:relative;padding-right:46px}.deleteSaved{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:10px;background:rgba(255,255,255,.16);display:grid;place-items:center;color:#fff}
+.mealPlanView{display:grid;gap:10px;margin-top:10px}#weekTabs{display:none!important}.weekTabs{padding:2px 0}.mealTopBar{display:flex;align-items:center;gap:10px;margin:4px 0 8px}.mealTopTitle{font-weight:800;font-size:16px;line-height:1.15;color:var(--ink);text-shadow:0 1px 12px rgba(255,255,255,.35)}.mealTopSub{font-size:12px;color:var(--muted);margin-top:2px}.mealDay{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(5px);box-shadow:0 12px 30px rgba(0,0,0,.12);color:var(--ink);padding:12px}.mealDayHead{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.mealDayHead strong{font-size:16px}.mealKcal{font-size:12px;border-radius:999px;background:rgba(255,255,255,.38);padding:6px 9px;white-space:nowrap}.mealItem{border-top:1px solid rgba(39,35,30,.12);padding-top:9px;margin-top:9px}.mealItem h4{margin:0 0 5px;font-size:14px;line-height:1.2}.mealType{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:3px}.ingredients{margin:6px 0 0;padding-left:17px;font-size:12px;line-height:1.35;color:var(--muted)}.replaceBtn{margin-top:7px;border-radius:999px;background:rgba(255,255,255,.38);border:1px solid rgba(255,255,255,.42);padding:7px 10px;color:var(--ink);font-size:11.5px}.mealTopBar .replaceBtn{margin-top:0;flex:0 0 auto}.modal .replaceBtn{color:#fff}.replaceList{display:grid;gap:8px}.replaceOption{border-radius:16px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:10px;font-size:13px;line-height:1.3}.savedItem{position:relative;padding-right:46px}.deleteSaved{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:10px;background:rgba(255,255,255,.16);display:grid;place-items:center;color:#fff}
 
 </style></head><body>
 <div id="splash" class="splash"></div><div class="app"><aside class="side">
@@ -2710,31 +2711,50 @@ function getPlanDays(){
 function cap(s){return s ? s[0].toUpperCase()+s.slice(1) : '';}
 function modeLabel(){return currentDiet==='balanced'?(currentMealMode==='twoMeals'?'2 meals/day':'Full menu'):'Full menu';}
 function realDayNumber(day){return currentWeek>2 ? day.day + 14 : day.day;}
-function renderMealHeader(text, sub){
-  const header=document.createElement('div');
-  header.className='mealDay';
-  header.innerHTML=`<div class="mealDayHead"><strong>${text}</strong>${sub?`<span class="mealKcal">${sub}</span>`:''}</div>`;
-  return header;
-}
-function renderBackButton(label, targetStep){
-  const wrap=document.createElement('div');
-  wrap.className='mealDay';
-  wrap.style.padding='10px 12px';
-  wrap.innerHTML=`<button type="button" class="replaceBtn" style="margin-top:0">← ${label}</button>`;
-  wrap.querySelector('button').onclick=()=>{mealStep=targetStep;renderMealPlan();};
-  return wrap;
+
+const menuWords = {
+  en:{day:'Day',days:'days',weeks:'Weeks',kcal:'kcal',replace:'Replace',replaceOptions:'Replace options',menuMissing:'Menu is not available yet',mealTypes:{breakfast:'Breakfast',snack1:'Snack 1',lunch:'Lunch',snack2:'Snack 2',dinner:'Dinner',meal1:'Meal 1',lightOption:'Light option',meal2:'Meal 2'},daysOfWeek:{Monday:'Monday',Tuesday:'Tuesday',Wednesday:'Wednesday',Thursday:'Thursday',Friday:'Friday',Saturday:'Saturday',Sunday:'Sunday'}},
+  uk:{day:'День',days:'днів',weeks:'Тижні',kcal:'ккал',replace:'Замінити',replaceOptions:'Варіанти заміни',menuMissing:'Меню поки недоступне',mealTypes:{breakfast:'Сніданок',snack1:'Перекус 1',lunch:'Обід',snack2:'Перекус 2',dinner:'Вечеря',meal1:'Прийом 1',lightOption:'Легкий варіант',meal2:'Прийом 2'},daysOfWeek:{Monday:'Понеділок',Tuesday:'Вівторок',Wednesday:'Середа',Thursday:'Четвер',Friday:'П’ятниця',Saturday:'Субота',Sunday:'Неділя'}},
+  pl:{day:'Dzień',days:'dni',weeks:'Tygodnie',kcal:'kcal',replace:'Zamień',replaceOptions:'Opcje zamiany',menuMissing:'Menu nie jest jeszcze dostępne',mealTypes:{breakfast:'Śniadanie',snack1:'Przekąska 1',lunch:'Obiad',snack2:'Przekąska 2',dinner:'Kolacja',meal1:'Posiłek 1',lightOption:'Lekka opcja',meal2:'Posiłek 2'},daysOfWeek:{Monday:'Poniedziałek',Tuesday:'Wtorek',Wednesday:'Środa',Thursday:'Czwartek',Friday:'Piątek',Saturday:'Sobota',Sunday:'Niedziela'}},
+  de:{day:'Tag',days:'Tage',weeks:'Wochen',kcal:'kcal',replace:'Ersetzen',replaceOptions:'Ersatzoptionen',menuMissing:'Menü noch nicht verfügbar',mealTypes:{breakfast:'Frühstück',snack1:'Snack 1',lunch:'Mittagessen',snack2:'Snack 2',dinner:'Abendessen',meal1:'Mahlzeit 1',lightOption:'Leichte Option',meal2:'Mahlzeit 2'},daysOfWeek:{Monday:'Montag',Tuesday:'Dienstag',Wednesday:'Mittwoch',Thursday:'Donnerstag',Friday:'Freitag',Saturday:'Samstag',Sunday:'Sonntag'}},
+  fr:{day:'Jour',days:'jours',weeks:'Semaines',kcal:'kcal',replace:'Remplacer',replaceOptions:'Options de remplacement',menuMissing:'Menu pas encore disponible',mealTypes:{breakfast:'Petit-déjeuner',snack1:'Collation 1',lunch:'Déjeuner',snack2:'Collation 2',dinner:'Dîner',meal1:'Repas 1',lightOption:'Option légère',meal2:'Repas 2'},daysOfWeek:{Monday:'Lundi',Tuesday:'Mardi',Wednesday:'Mercredi',Thursday:'Jeudi',Friday:'Vendredi',Saturday:'Samedi',Sunday:'Dimanche'}},
+  es:{day:'Día',days:'días',weeks:'Semanas',kcal:'kcal',replace:'Cambiar',replaceOptions:'Opciones de cambio',menuMissing:'Menú no disponible todavía',mealTypes:{breakfast:'Desayuno',snack1:'Snack 1',lunch:'Comida',snack2:'Snack 2',dinner:'Cena',meal1:'Comida 1',lightOption:'Opción ligera',meal2:'Comida 2'},daysOfWeek:{Monday:'Lunes',Tuesday:'Martes',Wednesday:'Miércoles',Thursday:'Jueves',Friday:'Viernes',Saturday:'Sábado',Sunday:'Domingo'}},
+  it:{day:'Giorno',days:'giorni',weeks:'Settimane',kcal:'kcal',replace:'Sostituisci',replaceOptions:'Opzioni di sostituzione',menuMissing:'Menu non ancora disponibile',mealTypes:{breakfast:'Colazione',snack1:'Spuntino 1',lunch:'Pranzo',snack2:'Spuntino 2',dinner:'Cena',meal1:'Pasto 1',lightOption:'Opzione leggera',meal2:'Pasto 2'},daysOfWeek:{Monday:'Lunedì',Tuesday:'Martedì',Wednesday:'Mercoledì',Thursday:'Giovedì',Friday:'Venerdì',Saturday:'Sabato',Sunday:'Domenica'}},
+  pt:{day:'Dia',days:'dias',weeks:'Semanas',kcal:'kcal',replace:'Substituir',replaceOptions:'Opções de substituição',menuMissing:'Menu ainda indisponível',mealTypes:{breakfast:'Pequeno-almoço',snack1:'Lanche 1',lunch:'Almoço',snack2:'Lanche 2',dinner:'Jantar',meal1:'Refeição 1',lightOption:'Opção leve',meal2:'Refeição 2'},daysOfWeek:{Monday:'Segunda',Tuesday:'Terça',Wednesday:'Quarta',Thursday:'Quinta',Friday:'Sexta',Saturday:'Sábado',Sunday:'Domingo'}},
+  nl:{day:'Dag',days:'dagen',weeks:'Weken',kcal:'kcal',replace:'Vervangen',replaceOptions:'Vervangopties',menuMissing:'Menu nog niet beschikbaar',mealTypes:{breakfast:'Ontbijt',snack1:'Snack 1',lunch:'Lunch',snack2:'Snack 2',dinner:'Diner',meal1:'Maaltijd 1',lightOption:'Lichte optie',meal2:'Maaltijd 2'},daysOfWeek:{Monday:'Maandag',Tuesday:'Dinsdag',Wednesday:'Woensdag',Thursday:'Donderdag',Friday:'Vrijdag',Saturday:'Zaterdag',Sunday:'Zondag'}},
+  tr:{day:'Gün',days:'gün',weeks:'Haftalar',kcal:'kcal',replace:'Değiştir',replaceOptions:'Değiştirme seçenekleri',menuMissing:'Menü henüz yok',mealTypes:{breakfast:'Kahvaltı',snack1:'Ara öğün 1',lunch:'Öğle yemeği',snack2:'Ara öğün 2',dinner:'Akşam yemeği',meal1:'Öğün 1',lightOption:'Hafif seçenek',meal2:'Öğün 2'},daysOfWeek:{Monday:'Pazartesi',Tuesday:'Salı',Wednesday:'Çarşamba',Thursday:'Perşembe',Friday:'Cuma',Saturday:'Cumartesi',Sunday:'Pazar'}},
+  ro:{day:'Ziua',days:'zile',weeks:'Săptămâni',kcal:'kcal',replace:'Înlocuiește',replaceOptions:'Opțiuni de înlocuire',menuMissing:'Meniul nu este disponibil',mealTypes:{breakfast:'Mic dejun',snack1:'Gustare 1',lunch:'Prânz',snack2:'Gustare 2',dinner:'Cină',meal1:'Masa 1',lightOption:'Opțiune ușoară',meal2:'Masa 2'},daysOfWeek:{Monday:'Luni',Tuesday:'Marți',Wednesday:'Miercuri',Thursday:'Joi',Friday:'Vineri',Saturday:'Sâmbătă',Sunday:'Duminică'}},
+  cs:{day:'Den',days:'dní',weeks:'Týdny',kcal:'kcal',replace:'Nahradit',replaceOptions:'Možnosti náhrady',menuMissing:'Menu zatím není dostupné',mealTypes:{breakfast:'Snídaně',snack1:'Svačina 1',lunch:'Oběd',snack2:'Svačina 2',dinner:'Večeře',meal1:'Jídlo 1',lightOption:'Lehká možnost',meal2:'Jídlo 2'},daysOfWeek:{Monday:'Pondělí',Tuesday:'Úterý',Wednesday:'Středa',Thursday:'Čtvrtek',Friday:'Pátek',Saturday:'Sobota',Sunday:'Neděle'}},
+  sk:{day:'Deň',days:'dní',weeks:'Týždne',kcal:'kcal',replace:'Nahradiť',replaceOptions:'Možnosti náhrady',menuMissing:'Menu zatiaľ nie je dostupné',mealTypes:{breakfast:'Raňajky',snack1:'Desiata 1',lunch:'Obed',snack2:'Desiata 2',dinner:'Večera',meal1:'Jedlo 1',lightOption:'Ľahká možnosť',meal2:'Jedlo 2'},daysOfWeek:{Monday:'Pondelok',Tuesday:'Utorok',Wednesday:'Streda',Thursday:'Štvrtok',Friday:'Piatok',Saturday:'Sobota',Sunday:'Nedeľa'}},
+  hu:{day:'Nap',days:'nap',weeks:'Hetek',kcal:'kcal',replace:'Csere',replaceOptions:'Cserelehetőségek',menuMissing:'A menü még nem elérhető',mealTypes:{breakfast:'Reggeli',snack1:'Uzsonna 1',lunch:'Ebéd',snack2:'Uzsonna 2',dinner:'Vacsora',meal1:'Étkezés 1',lightOption:'Könnyű opció',meal2:'Étkezés 2'},daysOfWeek:{Monday:'Hétfő',Tuesday:'Kedd',Wednesday:'Szerda',Thursday:'Csütörtök',Friday:'Péntek',Saturday:'Szombat',Sunday:'Vasárnap'}},
+  bg:{day:'Ден',days:'дни',weeks:'Седмици',kcal:'ккал',replace:'Замени',replaceOptions:'Опции за замяна',menuMissing:'Менюто още не е налично',mealTypes:{breakfast:'Закуска',snack1:'Междинно 1',lunch:'Обяд',snack2:'Междинно 2',dinner:'Вечеря',meal1:'Хранене 1',lightOption:'Лека опция',meal2:'Хранене 2'},daysOfWeek:{Monday:'Понеделник',Tuesday:'Вторник',Wednesday:'Сряда',Thursday:'Четвъртък',Friday:'Петък',Saturday:'Събота',Sunday:'Неделя'}},
+  ka:{day:'დღე',days:'დღე',weeks:'კვირები',kcal:'კკალ',replace:'ჩანაცვლება',replaceOptions:'ჩანაცვლების ვარიანტები',menuMissing:'მენიუ ჯერ მიუწვდომელია',mealTypes:{breakfast:'საუზმე',snack1:'სნექი 1',lunch:'სადილი',snack2:'სნექი 2',dinner:'ვახშამი',meal1:'კვება 1',lightOption:'მსუბუქი ვარიანტი',meal2:'კვება 2'},daysOfWeek:{Monday:'ორშაბათი',Tuesday:'სამშაბათი',Wednesday:'ოთხშაბათი',Thursday:'ხუთშაბათი',Friday:'პარასკევი',Saturday:'შაბათი',Sunday:'კვირა'}},
+  ar:{day:'اليوم',days:'أيام',weeks:'أسابيع',kcal:'سعرة',replace:'استبدال',replaceOptions:'خيارات الاستبدال',menuMissing:'القائمة غير متاحة بعد',mealTypes:{breakfast:'الفطور',snack1:'وجبة خفيفة 1',lunch:'الغداء',snack2:'وجبة خفيفة 2',dinner:'العشاء',meal1:'وجبة 1',lightOption:'خيار خفيف',meal2:'وجبة 2'},daysOfWeek:{Monday:'الاثنين',Tuesday:'الثلاثاء',Wednesday:'الأربعاء',Thursday:'الخميس',Friday:'الجمعة',Saturday:'السبت',Sunday:'الأحد'}},
+  zh:{day:'第',days:'天',weeks:'周',kcal:'千卡',replace:'替换',replaceOptions:'替换选项',menuMissing:'菜单暂不可用',mealTypes:{breakfast:'早餐',snack1:'加餐 1',lunch:'午餐',snack2:'加餐 2',dinner:'晚餐',meal1:'餐 1',lightOption:'轻食选项',meal2:'餐 2'},daysOfWeek:{Monday:'星期一',Tuesday:'星期二',Wednesday:'星期三',Thursday:'星期四',Friday:'星期五',Saturday:'星期六',Sunday:'星期日'}},
+  ja:{day:'日',days:'日',weeks:'週',kcal:'kcal',replace:'置き換え',replaceOptions:'置き換え候補',menuMissing:'メニューはまだありません',mealTypes:{breakfast:'朝食',snack1:'間食 1',lunch:'昼食',snack2:'間食 2',dinner:'夕食',meal1:'食事 1',lightOption:'軽い選択肢',meal2:'食事 2'},daysOfWeek:{Monday:'月曜日',Tuesday:'火曜日',Wednesday:'水曜日',Thursday:'木曜日',Friday:'金曜日',Saturday:'土曜日',Sunday:'日曜日'}},
+  ko:{day:'일',days:'일',weeks:'주',kcal:'kcal',replace:'대체',replaceOptions:'대체 옵션',menuMissing:'메뉴가 아직 없습니다',mealTypes:{breakfast:'아침',snack1:'간식 1',lunch:'점심',snack2:'간식 2',dinner:'저녁',meal1:'식사 1',lightOption:'가벼운 옵션',meal2:'식사 2'},daysOfWeek:{Monday:'월요일',Tuesday:'화요일',Wednesday:'수요일',Thursday:'목요일',Friday:'금요일',Saturday:'토요일',Sunday:'일요일'}},
+  hi:{day:'दिन',days:'दिन',weeks:'सप्ताह',kcal:'कैलोरी',replace:'बदलें',replaceOptions:'बदलने के विकल्प',menuMissing:'मेनू अभी उपलब्ध नहीं है',mealTypes:{breakfast:'नाश्ता',snack1:'स्नैक 1',lunch:'लंच',snack2:'स्नैक 2',dinner:'डिनर',meal1:'भोजन 1',lightOption:'हल्का विकल्प',meal2:'भोजन 2'},daysOfWeek:{Monday:'सोमवार',Tuesday:'मंगलवार',Wednesday:'बुधवार',Thursday:'गुरुवार',Friday:'शुक्रवार',Saturday:'शनिवार',Sunday:'रविवार'}},
+  he:{day:'יום',days:'ימים',weeks:'שבועות',kcal:'קק״ל',replace:'החלפה',replaceOptions:'אפשרויות החלפה',menuMissing:'התפריט עדיין לא זמין',mealTypes:{breakfast:'ארוחת בוקר',snack1:'חטיף 1',lunch:'ארוחת צהריים',snack2:'חטיף 2',dinner:'ארוחת ערב',meal1:'ארוחה 1',lightOption:'אפשרות קלה',meal2:'ארוחה 2'},daysOfWeek:{Monday:'יום שני',Tuesday:'יום שלישי',Wednesday:'יום רביעי',Thursday:'יום חמישי',Friday:'יום שישי',Saturday:'שבת',Sunday:'יום ראשון'}}
+};
+function mw(key){return (menuWords[currentLang]&&menuWords[currentLang][key])||menuWords.en[key]||key;}
+function mealTypeLabel(type){return (menuWords[currentLang]?.mealTypes?.[type])||menuWords.en.mealTypes[type]||type;}
+function localizedDayName(name){return (menuWords[currentLang]?.daysOfWeek?.[name])||menuWords.en.daysOfWeek[name]||name;}
+function localizedDayTitle(day){return `${mw('day')} ${realDayNumber(day)} · ${localizedDayName(day.name)}`;}
+function renderTopBar(backLabel,targetStep,title,sub){
+  const bar=document.createElement('div');
+  bar.className='mealTopBar';
+  bar.innerHTML=`<button type="button" class="replaceBtn">← ${backLabel}</button><div><div class="mealTopTitle">${title||''}</div>${sub?`<div class="mealTopSub">${sub}</div>`:''}</div>`;
+  bar.querySelector('button').onclick=()=>{mealStep=targetStep;renderMealPlan();};
+  return bar;
 }
 function renderMealPlan(){
   const mealPlanEl=document.getElementById('mealPlanView');
   if(!mealPlanEl) return;
   mealPlanEl.innerHTML='';
-
-  // Important: the small old week-tab row caused the broken mixed layout. Weeks are now rendered as proper large cards.
   const oldWeekTabs=document.getElementById('weekTabs');
   if(oldWeekTabs) oldWeekTabs.style.display='none';
 
   if(mealStep==='weeks'){
-    mealPlanEl.appendChild(renderMealHeader(`${cap(currentDiet)} · ${modeLabel()}`, '4 weeks'));
     [1,2,3,4].forEach(w=>{
       const card=document.createElement('div');
       card.className='mealDay';
@@ -2750,20 +2770,18 @@ function renderMealPlan(){
 
   const days=getPlanDays();
   if(!days.length){
-    mealPlanEl.appendChild(renderBackButton('Back', 'weeks'));
-    mealPlanEl.appendChild(renderMealHeader('Menu is not available yet', ''));
+    mealPlanEl.appendChild(renderTopBar(mw('weeks'),'weeks','', ''));
+    mealPlanEl.appendChild(renderMealHeader(mw('menuMissing'),''));
     return;
   }
 
   if(mealStep==='days'){
-    mealPlanEl.appendChild(renderBackButton('Weeks', 'weeks'));
-    mealPlanEl.appendChild(renderMealHeader(`${cap(currentDiet)} · ${modeLabel()} · ${t(`week${currentWeek}`)}`, `${days.length} days`));
+    mealPlanEl.appendChild(renderTopBar(mw('weeks'),'weeks',t(`week${currentWeek}`),''));
     days.forEach((day,idx)=>{
       const card=document.createElement('div');
       card.className='mealDay';
       card.style.cursor='pointer';
-      const dayTitle=`Day ${realDayNumber(day)} · ${day.name}`;
-      card.innerHTML=`<div class="mealDayHead"><div><strong>${dayTitle}</strong><div class="muted" style="margin-top:4px">≈ ${day.totalKcal} kcal</div></div><span class="chev">›</span></div>`;
+      card.innerHTML=`<div class="mealDayHead"><div><strong>${localizedDayTitle(day)}</strong><div class="muted" style="margin-top:4px">≈ ${day.totalKcal} ${mw('kcal')}</div></div><span class="chev">›</span></div>`;
       card.onclick=()=>{selectedDayIndex=idx;mealStep='detail';renderMealPlan();};
       mealPlanEl.appendChild(card);
     });
@@ -2772,15 +2790,13 @@ function renderMealPlan(){
 
   if(mealStep==='detail'){
     const day=days[selectedDayIndex] || days[0];
-    mealPlanEl.appendChild(renderBackButton('Days', 'days'));
+    mealPlanEl.appendChild(renderTopBar(mw('days'),'days',localizedDayTitle(day),`≈ ${day.totalKcal} ${mw('kcal')}`));
     const card=document.createElement('div');
     card.className='mealDay';
-    const dayTitle=`Day ${realDayNumber(day)} · ${day.name}`;
-    card.innerHTML=`<div class="mealDayHead"><strong>${dayTitle}</strong><span class="mealKcal">≈ ${day.totalKcal} kcal</span></div>`;
     day.meals.forEach(item=>{
       const block=document.createElement('div'); block.className='mealItem';
-      const rep=(item.replaceTags||[]).length?`<button type="button" class="replaceBtn" data-tags="${item.replaceTags.join(',')}">Replace</button>`:'';
-      block.innerHTML=`<div class="mealType">${mealTypeLabels[item.type]||item.type} · ≈ ${item.kcal} kcal</div><h4>${item.title}</h4><ul class="ingredients">${item.ingredients.map(x=>`<li>${x}</li>`).join('')}</ul>${rep}`;
+      const rep=(item.replaceTags||[]).length?`<button type="button" class="replaceBtn" data-tags="${item.replaceTags.join(',')}">${mw('replace')}</button>`:'';
+      block.innerHTML=`<div class="mealType">${mealTypeLabel(item.type)} · ≈ ${item.kcal} ${mw('kcal')}</div><h4>${item.title}</h4><ul class="ingredients">${item.ingredients.map(x=>`<li>${x}</li>`).join('')}</ul>${rep}`;
       card.appendChild(block);
     });
     mealPlanEl.appendChild(card);
@@ -2789,13 +2805,19 @@ function renderMealPlan(){
     });
   }
 }
+function renderMealHeader(text, sub){
+  const header=document.createElement('div');
+  header.className='mealDay';
+  header.innerHTML=`<div class="mealDayHead"><strong>${text}</strong>${sub?`<span class="mealKcal">${sub}</span>`:''}</div>`;
+  return header;
+}
 function openReplace(tags){
   const list=document.getElementById('replaceList');
   const title=document.getElementById('replaceTitle');
   const modal=document.getElementById('replaceModal');
   if(!list||!title||!modal) return;
   list.innerHTML='';
-  title.textContent='Replace options';
+  title.textContent=mw('replaceOptions');
   tags.forEach(tag=>{
     const pack=mealReplaceOptions[tag]; if(!pack) return;
     const h=document.createElement('h3'); h.textContent=pack.label; list.appendChild(h);
