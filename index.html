@@ -1,5 +1,4 @@
 
-
 <!doctype html>
 <html lang="en" dir="ltr">
 <head>
@@ -29,7 +28,7 @@ html[lang="ka"] .nav span,html[lang="hi"] .nav span,html[lang="bg"] .nav span{fo
 html[lang="ka"] .tab,html[lang="hi"] .tab,html[lang="bg"] .tab,html[lang="ar"] .tab,html[lang="he"] .tab{font-size:10px;padding-left:8px;padding-right:8px}
 @media(max-width:390px){:root{--side:72px}.nav{width:56px}.nav span{font-size:8px}.content{padding-left:11px;padding-right:11px}.grid2{grid-template-columns:1.2fr .9fr}.card{padding:12px}.fieldGrid{gap:7px}.value{font-size:26px}.action strong{font-size:16px}.action small{font-size:10.5px}}
 
-.mealPlanView{display:grid;gap:10px;margin-top:10px}.weekTabs{padding:2px 0}.mealDay{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(5px);box-shadow:0 12px 30px rgba(0,0,0,.12);color:var(--ink);padding:12px}.mealDayHead{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.mealDayHead strong{font-size:16px}.mealKcal{font-size:12px;border-radius:999px;background:rgba(255,255,255,.38);padding:6px 9px;white-space:nowrap}.mealItem{border-top:1px solid rgba(39,35,30,.12);padding-top:9px;margin-top:9px}.mealItem h4{margin:0 0 5px;font-size:14px;line-height:1.2}.mealType{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:3px}.ingredients{margin:6px 0 0;padding-left:17px;font-size:12px;line-height:1.35;color:var(--muted)}.replaceBtn{margin-top:7px;border-radius:999px;background:rgba(255,255,255,.38);border:1px solid rgba(255,255,255,.42);padding:7px 10px;color:var(--ink);font-size:11.5px}.modal .replaceBtn{color:#fff}.replaceList{display:grid;gap:8px}.replaceOption{border-radius:16px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:10px;font-size:13px;line-height:1.3}.savedItem{position:relative;padding-right:46px}.deleteSaved{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:10px;background:rgba(255,255,255,.16);display:grid;place-items:center;color:#fff}
+.mealPlanView{display:grid;gap:10px;margin-top:10px}#weekTabs{display:none!important}.weekTabs{padding:2px 0}.mealDay{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(5px);box-shadow:0 12px 30px rgba(0,0,0,.12);color:var(--ink);padding:12px}.mealDayHead{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.mealDayHead strong{font-size:16px}.mealKcal{font-size:12px;border-radius:999px;background:rgba(255,255,255,.38);padding:6px 9px;white-space:nowrap}.mealItem{border-top:1px solid rgba(39,35,30,.12);padding-top:9px;margin-top:9px}.mealItem h4{margin:0 0 5px;font-size:14px;line-height:1.2}.mealType{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:3px}.ingredients{margin:6px 0 0;padding-left:17px;font-size:12px;line-height:1.35;color:var(--muted)}.replaceBtn{margin-top:7px;border-radius:999px;background:rgba(255,255,255,.38);border:1px solid rgba(255,255,255,.42);padding:7px 10px;color:var(--ink);font-size:11.5px}.modal .replaceBtn{color:#fff}.replaceList{display:grid;gap:8px}.replaceOption{border-radius:16px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:10px;font-size:13px;line-height:1.3}.savedItem{position:relative;padding-right:46px}.deleteSaved{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:10px;background:rgba(255,255,255,.16);display:grid;place-items:center;color:#fff}
 
 </style></head><body>
 <div id="splash" class="splash"></div><div class="app"><aside class="side">
@@ -2700,37 +2699,83 @@ openSettings.onclick=()=>settingsModal.classList.add("open");openMeasurements.on
 let currentDiet = 'balanced';
 let currentMealMode = 'full';
 let currentWeek = 1;
+let mealStep = 'weeks'; // weeks -> days -> detail
+let selectedDayIndex = 0;
 const mealTypeLabels = {breakfast:'Breakfast',snack1:'Snack 1',lunch:'Lunch',snack2:'Snack 2',dinner:'Dinner',meal1:'Meal 1',lightOption:'Light option',meal2:'Meal 2'};
 function getPlanWeek(){ return (currentWeek===1||currentWeek===3)?'week1':'week2'; }
 function getPlanDays(){
   const mode = currentDiet==='balanced' ? currentMealMode : 'full';
   return mealPlans[currentDiet]?.[mode]?.[getPlanWeek()] || [];
 }
+function cap(s){return s ? s[0].toUpperCase()+s.slice(1) : '';}
+function modeLabel(){return currentDiet==='balanced'?(currentMealMode==='twoMeals'?'2 meals/day':'Full menu'):'Full menu';}
+function realDayNumber(day){return currentWeek>2 ? day.day + 14 : day.day;}
+function renderMealHeader(text, sub){
+  const header=document.createElement('div');
+  header.className='mealDay';
+  header.innerHTML=`<div class="mealDayHead"><strong>${text}</strong>${sub?`<span class="mealKcal">${sub}</span>`:''}</div>`;
+  return header;
+}
+function renderBackButton(label, targetStep){
+  const wrap=document.createElement('div');
+  wrap.className='mealDay';
+  wrap.style.padding='10px 12px';
+  wrap.innerHTML=`<button type="button" class="replaceBtn" style="margin-top:0">← ${label}</button>`;
+  wrap.querySelector('button').onclick=()=>{mealStep=targetStep;renderMealPlan();};
+  return wrap;
+}
 function renderMealPlan(){
   const mealPlanEl=document.getElementById('mealPlanView');
   if(!mealPlanEl) return;
-  const days=getPlanDays();
   mealPlanEl.innerHTML='';
 
-  if(!days.length){
-    const empty=document.createElement('div');
-    empty.className='mealDay';
-    empty.innerHTML='<div class="mealDayHead"><strong>Menu is not available yet</strong></div>';
-    mealPlanEl.appendChild(empty);
+  // Important: the small old week-tab row caused the broken mixed layout. Weeks are now rendered as proper large cards.
+  const oldWeekTabs=document.getElementById('weekTabs');
+  if(oldWeekTabs) oldWeekTabs.style.display='none';
+
+  if(mealStep==='weeks'){
+    mealPlanEl.appendChild(renderMealHeader(`${cap(currentDiet)} · ${modeLabel()}`, '4 weeks'));
+    [1,2,3,4].forEach(w=>{
+      const card=document.createElement('div');
+      card.className='mealDay';
+      card.style.cursor='pointer';
+      const title=t(`week${w}`);
+      const sub=w===3?t('repeatWeek1'):w===4?t('repeatWeek2'):t('weekSub');
+      card.innerHTML=`<div class="mealDayHead"><div><strong>${title}</strong><div class="muted" style="margin-top:4px">${sub}</div></div><span class="chev">›</span></div>`;
+      card.onclick=()=>{currentWeek=w;selectedDayIndex=0;mealStep='days';updateMealControls();renderMealPlan();};
+      mealPlanEl.appendChild(card);
+    });
     return;
   }
 
-  const header=document.createElement('div');
-  header.className='mealDay';
-  const modeLabel=currentDiet==='balanced'?(currentMealMode==='twoMeals'?'2 meals/day':'Full menu'):'Full menu';
-  header.innerHTML=`<div class="mealDayHead"><strong>${currentDiet[0].toUpperCase()+currentDiet.slice(1)} · ${modeLabel} · Week ${currentWeek}</strong><span class="mealKcal">${days.length} days</span></div>`;
-  mealPlanEl.appendChild(header);
+  const days=getPlanDays();
+  if(!days.length){
+    mealPlanEl.appendChild(renderBackButton('Back', 'weeks'));
+    mealPlanEl.appendChild(renderMealHeader('Menu is not available yet', ''));
+    return;
+  }
 
-  days.forEach((day,idx)=>{
+  if(mealStep==='days'){
+    mealPlanEl.appendChild(renderBackButton('Weeks', 'weeks'));
+    mealPlanEl.appendChild(renderMealHeader(`${cap(currentDiet)} · ${modeLabel()} · ${t(`week${currentWeek}`)}`, `${days.length} days`));
+    days.forEach((day,idx)=>{
+      const card=document.createElement('div');
+      card.className='mealDay';
+      card.style.cursor='pointer';
+      const dayTitle=`Day ${realDayNumber(day)} · ${day.name}`;
+      card.innerHTML=`<div class="mealDayHead"><div><strong>${dayTitle}</strong><div class="muted" style="margin-top:4px">≈ ${day.totalKcal} kcal</div></div><span class="chev">›</span></div>`;
+      card.onclick=()=>{selectedDayIndex=idx;mealStep='detail';renderMealPlan();};
+      mealPlanEl.appendChild(card);
+    });
+    return;
+  }
+
+  if(mealStep==='detail'){
+    const day=days[selectedDayIndex] || days[0];
+    mealPlanEl.appendChild(renderBackButton('Days', 'days'));
     const card=document.createElement('div');
     card.className='mealDay';
-    const shownWeekDay = currentWeek>2 ? day.day + 14 : day.day;
-    const dayTitle = `Day ${shownWeekDay} · ${day.name}`;
+    const dayTitle=`Day ${realDayNumber(day)} · ${day.name}`;
     card.innerHTML=`<div class="mealDayHead"><strong>${dayTitle}</strong><span class="mealKcal">≈ ${day.totalKcal} kcal</span></div>`;
     day.meals.forEach(item=>{
       const block=document.createElement('div'); block.className='mealItem';
@@ -2739,8 +2784,10 @@ function renderMealPlan(){
       card.appendChild(block);
     });
     mealPlanEl.appendChild(card);
-  });
-  mealPlanEl.querySelectorAll('.replaceBtn').forEach(btn=>btn.onclick=()=>openReplace(btn.dataset.tags.split(',')));
+    mealPlanEl.querySelectorAll('.replaceBtn').forEach(btn=>{
+      if(btn.dataset.tags) btn.onclick=()=>openReplace(btn.dataset.tags.split(','));
+    });
+  }
 }
 function openReplace(tags){
   const list=document.getElementById('replaceList');
@@ -2767,11 +2814,26 @@ document.querySelectorAll('.diet').forEach(b=>b.addEventListener('click',()=>{
   currentDiet=b.dataset.diet;
   currentMealMode='full';
   currentWeek=1;
+  selectedDayIndex=0;
+  mealStep='weeks';
   updateMealControls();
   renderMealPlan();
 }));
-document.querySelectorAll('.mealMode').forEach(b=>b.addEventListener('click',()=>{currentMealMode=b.dataset.mode;updateMealControls();renderMealPlan()}));
-document.querySelectorAll('.weekTab').forEach(b=>b.addEventListener('click',()=>{currentWeek=+b.dataset.week;updateMealControls();renderMealPlan()}));
+document.querySelectorAll('.mealMode').forEach(b=>b.addEventListener('click',()=>{
+  currentMealMode=b.dataset.mode;
+  currentWeek=1;
+  selectedDayIndex=0;
+  mealStep='weeks';
+  updateMealControls();
+  renderMealPlan();
+}));
+document.querySelectorAll('.weekTab').forEach(b=>b.addEventListener('click',()=>{
+  currentWeek=+b.dataset.week;
+  selectedDayIndex=0;
+  mealStep='days';
+  updateMealControls();
+  renderMealPlan();
+}));
 
 function renderGender(){sexValue.textContent=sex.value==="male"?t("maleShort"):t("femaleShort")}
 sexButton.onclick=()=>genderModal.classList.add("open");
