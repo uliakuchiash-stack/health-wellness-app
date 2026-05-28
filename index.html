@@ -29,7 +29,7 @@ html[lang="ka"] .nav span,html[lang="hi"] .nav span,html[lang="bg"] .nav span{fo
 html[lang="ka"] .tab,html[lang="hi"] .tab,html[lang="bg"] .tab,html[lang="ar"] .tab,html[lang="he"] .tab{font-size:10px;padding-left:8px;padding-right:8px}
 @media(max-width:390px){:root{--side:72px}.nav{width:56px}.nav span{font-size:8px}.content{padding-left:11px;padding-right:11px}.grid2{grid-template-columns:1.2fr .9fr}.card{padding:12px}.fieldGrid{gap:7px}.value{font-size:26px}.action strong{font-size:16px}.action small{font-size:10.5px}}
 
-.mealPlanView{display:grid;gap:10px;margin-top:10px}#weekTabs{display:none!important}.weekTabs{padding:2px 0}.mealTopBar{display:flex;align-items:center;gap:10px;margin:4px 0 8px}.mealTopTitle{font-weight:800;font-size:16px;line-height:1.15;color:var(--ink);text-shadow:0 1px 12px rgba(255,255,255,.35)}.mealTopSub{font-size:12px;color:var(--muted);margin-top:2px}.mealDay{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(5px);box-shadow:0 12px 30px rgba(0,0,0,.12);color:var(--ink);padding:12px}.mealDayHead{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.mealDayHead strong{font-size:16px}.mealKcal{font-size:12px;border-radius:999px;background:rgba(255,255,255,.38);padding:6px 9px;white-space:nowrap}.mealItem{border-top:1px solid rgba(39,35,30,.12);padding-top:9px;margin-top:9px}.mealItem h4{margin:0 0 5px;font-size:14px;line-height:1.2}.mealType{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:3px}.ingredients{margin:6px 0 0;padding-left:17px;font-size:12px;line-height:1.35;color:var(--muted)}.replaceBtn{margin-top:7px;border-radius:999px;background:rgba(255,255,255,.38);border:1px solid rgba(255,255,255,.42);padding:7px 10px;color:var(--ink);font-size:11.5px}.mealTopBar .replaceBtn{margin-top:0;flex:0 0 auto}.modal .replaceBtn{color:#fff}.replaceList{display:grid;gap:8px}.replaceOption{border-radius:16px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:10px;font-size:13px;line-height:1.3}.savedItem{position:relative;padding-right:46px}.deleteSaved{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:10px;background:rgba(255,255,255,.16);display:grid;place-items:center;color:#fff}
+.mealPlanView{display:grid;gap:10px;margin-top:10px}.mealScreenOpen .mealPlanView{margin-top:0}.mealScreenOpen .top{display:none}#weekTabs{display:none!important}.weekTabs{padding:2px 0}.mealTopBar{display:flex;align-items:center;gap:10px;margin:4px 0 8px}.mealTopTitle{font-weight:800;font-size:16px;line-height:1.15;color:var(--ink);text-shadow:0 1px 12px rgba(255,255,255,.35)}.mealTopSub{font-size:12px;color:var(--muted);margin-top:2px}.mealDay{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(5px);box-shadow:0 12px 30px rgba(0,0,0,.12);color:var(--ink);padding:12px}.mealDayHead{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.mealDayHead strong{font-size:16px}.mealKcal{font-size:12px;border-radius:999px;background:rgba(255,255,255,.38);padding:6px 9px;white-space:nowrap}.mealItem{border-top:1px solid rgba(39,35,30,.12);padding-top:9px;margin-top:9px}.mealItem h4{margin:0 0 5px;font-size:14px;line-height:1.2}.mealType{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:3px}.ingredients{margin:6px 0 0;padding-left:17px;font-size:12px;line-height:1.35;color:var(--muted)}.replaceBtn{margin-top:7px;border-radius:999px;background:rgba(255,255,255,.38);border:1px solid rgba(255,255,255,.42);padding:7px 10px;color:var(--ink);font-size:11.5px}.mealTopBar .replaceBtn{margin-top:0;flex:0 0 auto}.modal .replaceBtn{color:#fff}.replaceList{display:grid;gap:8px}.replaceOption{border-radius:16px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:10px;font-size:13px;line-height:1.3}.savedItem{position:relative;padding-right:46px}.deleteSaved{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:10px;background:rgba(255,255,255,.16);display:grid;place-items:center;color:#fff}
 
 </style></head><body>
 <div id="splash" class="splash"></div><div class="app"><aside class="side">
@@ -2740,11 +2740,61 @@ function mw(key){return (menuWords[currentLang]&&menuWords[currentLang][key])||m
 function mealTypeLabel(type){return (menuWords[currentLang]?.mealTypes?.[type])||menuWords.en.mealTypes[type]||type;}
 function localizedDayName(name){return (menuWords[currentLang]?.daysOfWeek?.[name])||menuWords.en.daysOfWeek[name]||name;}
 function localizedDayTitle(day){return `${mw('day')} ${realDayNumber(day)} · ${localizedDayName(day.name)}`;}
+function cleanMealType(type){
+  const label=mealTypeLabel(type);
+  return label.replace(/\s*1$/,'').replace(/\s*2$/,'');
+}
+const ukFoodExact={
+  'Oatmeal with banana, berries and Greek yoghurt':'Вівсянка з бананом, ягодами та грецьким йогуртом',
+  'Apple + nuts':'Яблуко + горіхи',
+  'Chicken vegetable soup + wholegrain bread':'Курячий овочевий суп + цільнозерновий хліб',
+  'Greek yoghurt with berries':'Грецький йогурт з ягодами',
+  'Baked white fish + fresh salad':'Запечена біла риба + свіжий салат',
+  'Omelette with tomatoes, herbs and cheese + toast':'Омлет з помідорами, зеленню і сиром + тост',
+  'Pear':'Груша',
+  'Buckwheat + chicken/turkey + salad':'Гречка + курка/індичка + салат',
+  'Vegetables + hummus':'Овочі + хумус',
+  'Turkey/chicken + baked courgettes and aubergines':'Індичка/курка + запечені кабачки та баклажани',
+  'Cottage cheese pancakes with berries':'Сирники з ягодами',
+  'Banana berry smoothie':'Смузі з бананом і ягодами',
+  'Vegetable cream soup + toast with egg':'Овочевий крем-суп + тост з яйцем',
+  'Kefir or yoghurt':'Кефір або йогурт',
+  'Warm chicken salad':'Теплий салат з куркою',
+  'Buckwheat porridge with egg and vegetables':'Гречана каша з яйцем і овочами',
+  'Peach or apple':'Персик або яблуко',
+  'Bulgur/rice + turkey + baked vegetables':'Булгур/рис + індичка + запечені овочі',
+  'Cottage cheese with berries':'Творог з ягодами',
+  'Baked fish + broccoli/cauliflower + light salad':'Запечена риба + броколі/цвітна капуста + легкий салат',
+  'Granola with yoghurt, fruit and berries':'Гранола з йогуртом, фруктами та ягодами',
+  'Banana':'Банан',
+  'Light borscht with chicken/beef + cabbage salad':'Легкий борщ з куркою/яловичиною + салат з капусти',
+  'Fruit + nuts':'Фрукт + горіхи',
+  'Vegetable stew + chicken/turkey':'Овочеве рагу + курка/індичка',
+  'Toast with egg, cottage cheese spread, cucumber and herbs':'Тост з яйцем, сирною намазкою, огірком і зеленню',
+  'Yoghurt with berries':'Йогурт з ягодами',
+  'Durum pasta + tuna/chicken + vegetable salad':'Паста з твердих сортів + тунець/курка + овочевий салат',
+  'Crispbread + hummus or cottage cheese spread':'Хлібці + хумус або сирна намазка',
+  'Salad with tuna, egg, cucumber, tomato and lettuce':'Салат з тунцем, яйцем, огірком, помідором і листям салату',
+  'Rice porridge with apple, cinnamon and nuts':'Рисова каша з яблуком, корицею та горіхами',
+  'Fruit plate':'Фруктова тарілка',
+  'Fish/chicken + potato or rice + beetroot-carrot salad':'Риба/курка + картопля або рис + салат з буряка і моркви',
+  'Rabbit/chicken stewed with vegetables':'Кролик/курка тушковані з овочами'
+};
+const ukFoodTerms=[
+  ['Greek yoghurt','грецький йогурт'],['wholegrain bread','цільнозерновий хліб'],['wholegrain toast','цільнозерновий тост'],['plant milk','рослинне молоко'],['milk/plant milk','молоко/рослинне молоко'],['fortified plant milk','збагачене рослинне молоко'],['cottage cheese spread','сирна намазка'],['cottage cheese','творог'],['cream cheese','крем-сир'],['peanut butter','арахісова паста'],['white fish','біла риба'],['chicken breast','куряча грудка'],['chicken/turkey','курка/індичка'],['turkey/chicken','індичка/курка'],['green bell pepper','зелений болгарський перець'],['bell pepper','болгарський перець'],['lettuce leaves','листя салату'],['olive oil','оливкова олія'],['rapeseed oil','рапсова олія'],['sunflower oil','соняшникова олія'],['lemon juice','лимонний сік'],['soy sauce','соєвий соус'],['sour cream','сметана'],['light cream','легкі вершки'],['tomato sauce','томатний соус'],['tomato paste','томатна паста'],['maple/date syrup','кленовий/фініковий сироп'],['chia seeds','насіння чіа'],['flax seeds','насіння льону'],['pumpkin seeds','гарбузове насіння'],['sunflower seeds','насіння соняшника'],['walnuts/almonds','волоські горіхи/мигдаль'],['nuts','горіхи'],['oats','вівсяні пластівці'],['milk','молоко'],['banana','банан'],['berries','ягоди'],['honey','мед'],['apple','яблуко'],['pear','груша'],['peach','персик'],['potato','картопля'],['carrot','морква'],['onion','цибуля'],['courgette/cabbage','кабачок/капуста'],['courgette','кабачок'],['aubergine','баклажан'],['cabbage','капуста'],['cucumber','огірок'],['tomato','помідор'],['beetroot','буряк'],['broccoli/cauliflower','броколі/цвітна капуста'],['broccoli','броколі'],['cauliflower','цвітна капуста'],['mushrooms','гриби'],['chickpeas','нут'],['beans','квасоля'],['lentils','чечевиця'],['tofu','тофу'],['tempeh','темпе'],['hummus','хумус'],['yoghurt','йогурт'],['kefir','кефір'],['egg','яйце'],['eggs','яйця'],['cheese','сир'],['tuna','тунець'],['fish','риба'],['chicken','курка'],['turkey','індичка'],['rabbit','кролик'],['beef','яловичина'],['buckwheat','гречка'],['bulgur','булгур'],['rice','рис'],['pasta','паста'],['granola','гранола'],['toast','тост'],['crispbread','хлібці'],['fruit plate','фруктова тарілка'],['fruit','фрукт'],['oil','олія'],['salt','сіль'],['pepper','перець'],['herbs','зелень'],['cinnamon','кориця'],['garlic','часник'],['optional','за бажанням'],['cooked','готовий'],['dry','сухий'],['or','або'],['and','і'],['with','з']
+];
+function foodText(text){
+  if(currentLang!=='uk') return text;
+  if(ukFoodExact[text]) return ukFoodExact[text];
+  let out=String(text);
+  ukFoodTerms.forEach(([en,uk])=>{out=out.replace(new RegExp(en.replace(/[.*+?^${}()|[\]\]/g,'\\$&'),'gi'), uk);});
+  return out;
+}
 function renderTopBar(backLabel,targetStep,title,sub){
   const bar=document.createElement('div');
   bar.className='mealTopBar';
   bar.innerHTML=`<button type="button" class="replaceBtn">← ${backLabel}</button><div><div class="mealTopTitle">${title||''}</div>${sub?`<div class="mealTopSub">${sub}</div>`:''}</div>`;
-  bar.querySelector('button').onclick=()=>{mealStep=targetStep;renderMealPlan();};
+  bar.querySelector('button').onclick=()=>{mealStep=targetStep;updateMealControls();renderMealPlan();};
   return bar;
 }
 function renderMealPlan(){
@@ -2753,6 +2803,7 @@ function renderMealPlan(){
   mealPlanEl.innerHTML='';
   const oldWeekTabs=document.getElementById('weekTabs');
   if(oldWeekTabs) oldWeekTabs.style.display='none';
+  updateMealControls();
 
   if(mealStep==='weeks'){
     [1,2,3,4].forEach(w=>{
@@ -2790,15 +2841,19 @@ function renderMealPlan(){
 
   if(mealStep==='detail'){
     const day=days[selectedDayIndex] || days[0];
-    mealPlanEl.appendChild(renderTopBar(mw('days'),'days',localizedDayTitle(day),`≈ ${day.totalKcal} ${mw('kcal')}`));
+    mealPlanEl.appendChild(renderTopBar(mw('days'),'days',localizedDayName(day.name),''));
     const card=document.createElement('div');
     card.className='mealDay';
     day.meals.forEach(item=>{
       const block=document.createElement('div'); block.className='mealItem';
       const rep=(item.replaceTags||[]).length?`<button type="button" class="replaceBtn" data-tags="${item.replaceTags.join(',')}">${mw('replace')}</button>`:'';
-      block.innerHTML=`<div class="mealType">${mealTypeLabel(item.type)} · ≈ ${item.kcal} ${mw('kcal')}</div><h4>${item.title}</h4><ul class="ingredients">${item.ingredients.map(x=>`<li>${x}</li>`).join('')}</ul>${rep}`;
+      block.innerHTML=`<div class="mealType">${cleanMealType(item.type)} — ${item.kcal} ${mw('kcal')}</div><h4>${foodText(item.title)}</h4><ul class="ingredients">${item.ingredients.map(x=>`<li>${foodText(x)}</li>`).join('')}</ul>${rep}`;
       card.appendChild(block);
     });
+    const total=document.createElement('div');
+    total.className='mealItem';
+    total.innerHTML=`<strong>${currentLang==='uk'?'Разом':'Total'}: ≈ ${day.totalKcal} ${mw('kcal')}</strong>`;
+    card.appendChild(total);
     mealPlanEl.appendChild(card);
     mealPlanEl.querySelectorAll('.replaceBtn').forEach(btn=>{
       if(btn.dataset.tags) btn.onclick=()=>openReplace(btn.dataset.tags.split(','));
@@ -2827,7 +2882,12 @@ function openReplace(tags){
 }
 function updateMealControls(){
   const balancedModesEl=document.getElementById('balancedModes');
-  if(balancedModesEl) balancedModesEl.classList.toggle('hidden',currentDiet!=='balanced');
+  const mealScreen=document.getElementById('meal');
+  const dietCard=mealScreen?mealScreen.querySelector('.content > .card:not(#balancedModes)'):null;
+  const opened=mealStep!=='weeks';
+  if(mealScreen) mealScreen.classList.toggle('mealScreenOpen', opened);
+  if(dietCard) dietCard.style.display=opened?'none':'';
+  if(balancedModesEl) balancedModesEl.classList.toggle('hidden', currentDiet!=='balanced' || opened);
   document.querySelectorAll('.diet').forEach(x=>x.classList.toggle('active',x.dataset.diet===currentDiet));
   document.querySelectorAll('.mealMode').forEach(x=>x.classList.toggle('active',x.dataset.mode===currentMealMode));
   document.querySelectorAll('.weekTab').forEach(x=>x.classList.toggle('active',+x.dataset.week===currentWeek));
